@@ -1,4 +1,5 @@
 var board=new Array();
+var collisionDetection=new Array();
 var score=0;
 
 $(document).ready(function(){
@@ -16,13 +17,24 @@ $(document).ready(function(){
 });
 
 function newGame() {
+    $("#gameOver").remove();
     board=new Array();
     //初始化游戏网格
     init();
+    collisionDetectionInit();
     //随机生成数字
     createOneNumber();
     createOneNumber();
 
+}
+
+function collisionDetectionInit() {
+    for(var i=0;i<4;i++){
+        collisionDetection[i]=new Array();
+        for(var k=0;k<4;k++){
+            collisionDetection[i][k]=true;
+        }
+    }
 }
 
 function init(){
@@ -171,16 +183,61 @@ $(document).keydown(function (event) {
 });
 
 document.addEventListener("touchstart",function (event) {
-    alert(""+event.pageX);
+    touchStartX=event.targetTouches[0].pageX;
+    touchStartY=event.targetTouches[0].pageY;
 },false);
 
+$(document).on("touchmove",function (event) {
+    event.preventDefault();
+},false);
+
+document.addEventListener("touchend",function (event) {
+    touchEndX = event.changedTouches[0].pageX;
+    touchEndY = event.changedTouches[0].pageY;
+    switch(touchMoveDirection(touchStartX,touchStartY,touchEndX,touchEndY)){
+        case -1:
+            break;
+        case 1:
+            //move to left
+            if(moveToLeft()){
+                event.preventDefault();
+                setTimeout("createOneNumber()",210);
+                setTimeout("isGameOver()",270);
+            }
+            break;
+        case 2:
+            //move to right
+            if(moveToRight()){
+                event.preventDefault();
+                setTimeout("createOneNumber()",210);
+                setTimeout("isGameOver()",270);
+            }
+            break;
+        case 3:
+            //move to down
+            if(moveToDown()){
+                event.preventDefault();
+                setTimeout("createOneNumber()",210);
+                setTimeout("isGameOver()",270);
+            }
+            break;
+        case 4:
+            //move to up
+            if(moveToTop()){
+                event.preventDefault();
+                setTimeout("createOneNumber()",210);
+                setTimeout("isGameOver()",270);
+            }
+            break;
+    }
+},false)
 
 function isGameOver() {
     if(!canMoveToLeft(board)){
         if (!canMoveToTop(board)){
             if (!canMoveToRight(board)){
                 if (!canMoveToDown(board)){
-                    alert("游戏结束");
+                    gameOver();
                 }
             }
         }
@@ -188,8 +245,19 @@ function isGameOver() {
     }
 }
 
+function gameOver() {
+    $("#game-container").append("<div id='gameOver'></div>");
+    var gameOver=$("#gameOver");
+    gameOver.css({"width":boardWidth+"px",
+        "height":boardWidth+"px",
+        "margin-top":-cellSpace+"px",
+        "line-height":boardWidth+"px"})
+    gameOver.append("<span id='gameOverText'>游戏结束</span>")
+}
+
 function moveToLeft(){
     if(canMoveToLeft(board)){
+        collisionDetectionInit();
         for(var i=0;i<4;i++){
             for(var k=1;k<4;k++){
                 if(board[i][k]!=0){
@@ -199,9 +267,10 @@ function moveToLeft(){
                             board[i][j]=board[i][k];
                             board[i][k]=0;
                             continue;
-                        }else if(board[i][j]==board[i][k] && noBarrierLeft(i,k,j,board)){
+                        }else if(board[i][j]==board[i][k] && noBarrierLeft(i,k,j,board) && collisionDetection[i][j]){
                             numberMoveAnimation(i,k,i,j);
                             board[i][j] +=board[i][k];
+                            collisionDetection[i][j] = false;
                             board[i][k]=0;
                             upDateScore(board[i][j]);
                             continue;
@@ -244,6 +313,7 @@ function noBarrierLeft(i,k,j,board) {
 
 function moveToTop() {
     if (canMoveToTop(board)){
+        collisionDetectionInit();
         for(var i=1;i<4;i++){
             for (var k=0;k<4;k++){
                 if(board[i][k]!=0){
@@ -253,9 +323,10 @@ function moveToTop() {
                             board[j][k] = board[i][k];
                             board[i][k] = 0;
                             continue;
-                        }else if (board[j][k]==board[i][k] && noBarrierTop(i,k,j,board)){
+                        }else if (board[j][k]==board[i][k] && noBarrierTop(i,k,j,board) &&collisionDetection[j][k]){
                             numberMoveAnimation(i,k,j,k);
                             board[j][k] += board[i][k];
+                            collisionDetection[j][k] = false;
                             board[i][k] = 0;
                             upDateScore(board[j][k]);
                             continue;
@@ -295,6 +366,7 @@ function noBarrierTop(i,k,j,board) {
 
 function moveToRight() {
     if(canMoveToRight(board)){
+        collisionDetectionInit();
         for (var i=0;i<4;i++){
             for (var k=2;k>=0;k--){
                 if (board[i][k] != 0){
@@ -304,9 +376,10 @@ function moveToRight() {
                             board[i][j]=board[i][k];
                             board[i][k]=0;
                             continue;
-                        }else if (board[i][j]==board[i][k] && noBarrierRight(i,k,j,board)){
+                        }else if (board[i][j]==board[i][k] && noBarrierRight(i,k,j,board) && collisionDetection[i][j]){
                             numberMoveAnimation(i,k,i,j);
                             board[i][j] += board[i][k];
+                            collisionDetection[i][j]=false;
                             board[i][k]=0;
                             upDateScore(board[i][j]);
                             continue;
@@ -344,6 +417,7 @@ function noBarrierRight(i,k,j,board) {
 
 function moveToDown() {
     if (canMoveToDown(board)){
+        collisionDetectionInit();
         for (var i=2;i>=0;i--){
             for (var k=0;k<4;k++){
                 if (board[i][k]!=0){
@@ -353,9 +427,10 @@ function moveToDown() {
                             board[j][k]=board[i][k];
                             board[i][k]=0;
                             continue;
-                        }else  if(board[j][k]==board[i][k] && noBarrierDown(i,k,j,board)){
+                        }else  if(board[j][k]==board[i][k] && noBarrierDown(i,k,j,board) &&collisionDetection[j][k]){
                             numberMoveAnimation(i,k,j,k);
                             board[j][k] += board[i][k];
+                            collisionDetection[j][k]=false;
                             board[i][k]=0;
                             upDateScore(board[j][k]);
                             continue;
