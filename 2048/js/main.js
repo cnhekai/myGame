@@ -31,7 +31,9 @@ function newGame() {
     //随机生成数字
     createOneNumber();
     createOneNumber();
-    htmlInitHeight=$("html").height();
+    if(htmlInitHeight==0){
+        htmlInitHeight=$("html").height();
+    }
     mobile();
 }
 
