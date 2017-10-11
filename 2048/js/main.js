@@ -32,10 +32,10 @@ function newGame() {
     createOneNumber();
     createOneNumber();
     htmlInitHeight=$("html").height();
-    mobile(htmlInitHeight);
+    mobile();
 }
 
-function mobile(htmlInitHeight) {
+function mobile() {
     if($("html").height()>$(window).height()) {
         $("h1").hide();
         $("a").css({"margin": "10px auto"});
