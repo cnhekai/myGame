@@ -1,6 +1,7 @@
 var board=new Array();
 var collisionDetection=new Array();
 var score=0;
+var htmlInitHeight=0;
 
 $(document).ready(function(){
     newGame();
@@ -12,6 +13,7 @@ $(document).ready(function(){
         cellWidth=0.2*boardWidth;
         cellSpace=0.04*boardWidth;
         init();
+        mobile();
         upDateBoardView();
     } );
 });
@@ -29,7 +31,18 @@ function newGame() {
     //随机生成数字
     createOneNumber();
     createOneNumber();
+    htmlInitHeight=$("html").height();
+    mobile(htmlInitHeight);
+}
 
+function mobile(htmlInitHeight) {
+    if($("html").height()>$(window).height()) {
+        $("h1").hide();
+        $("a").css({"margin": "10px auto"});
+    }else  if($(window).height()>htmlInitHeight) {
+        $("h1").show();
+        $("a").css({"margin": "40px auto"});
+    }
 }
 
 function collisionDetectionInit() {
