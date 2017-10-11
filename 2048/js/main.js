@@ -25,6 +25,7 @@ function newGame() {
     //随机生成数字
     createOneNumber();
     createOneNumber();
+    score=0;
 
 }
 
