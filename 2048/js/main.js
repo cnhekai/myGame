@@ -21,11 +21,14 @@ function newGame() {
     board=new Array();
     //初始化游戏网格
     init();
+    //初始化碰撞检测
     collisionDetectionInit();
+    //初始化分数
+    score=0;
+    upDateScore(score);
     //随机生成数字
     createOneNumber();
     createOneNumber();
-    score=0;
 
 }
 
